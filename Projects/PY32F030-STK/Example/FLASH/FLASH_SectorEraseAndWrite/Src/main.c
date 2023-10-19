@@ -116,8 +116,8 @@ static void APP_SystemClockConfig(void)
   RCC_OscInitStruct.LSIState = RCC_LSI_OFF;                                     /* 禁止LSI */
   RCC_OscInitStruct.LSEState = RCC_LSE_OFF;                                     /* 禁止LSE */
   RCC_OscInitStruct.LSEDriver = RCC_LSEDRIVE_LOW;                               /* 需要根据晶振规格设置驱动能力 */
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;                                  /* 使能PLL */
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;                          /* PLL的时钟源，PLL时钟源只有24M时, 再使能PLL */
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_OFF;                                 /* 关闭PLL */
+  /* RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_NONE; */                   /* PLL无时钟源 */
 
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)                          /* 配置时钟 */
   {
@@ -130,7 +130,7 @@ static void APP_SystemClockConfig(void)
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;                             /* 设置AHB预分频 */
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;                              /* 设置APB1预分频 */
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)        /* 配置总线 */
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)        /* 配置总线 */
   {
     APP_ErrorHandler();
   }

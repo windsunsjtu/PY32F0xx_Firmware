@@ -109,7 +109,7 @@ void APP_AdcConfig(void)
   LL_ADC_SetResolution(ADC1, LL_ADC_RESOLUTION_12B);
 
   /* 设置数据右对齐 */
-  LL_ADC_SetResolution(ADC1, LL_ADC_DATA_ALIGN_RIGHT);
+  LL_ADC_SetDataAlignment(ADC1, LL_ADC_DATA_ALIGN_RIGHT);
 
   /* 设置低功耗模式无 */
   LL_ADC_SetLowPowerMode(ADC1, LL_ADC_LP_MODE_NONE);
