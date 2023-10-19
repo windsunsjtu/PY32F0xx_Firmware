@@ -2141,6 +2141,14 @@ void HAL_UART_IRQHandler(UART_HandleTypeDef *huart)
     }
     return;
   } /* End if some error occurs */
+  
+  /* Idle frame detect */
+  if (((isrflags & USART_SR_IDLE) != RESET) && ((cr1its & USART_CR1_IDLEIE) != RESET))
+  {
+    __HAL_UART_CLEAR_IDLEFLAG(huart);
+    
+    HAL_UART_IdleFrameDetectCpltCallback(huart);
+  }
 
   /* UART in mode Transmitter ------------------------------------------------*/
   if (((isrflags & USART_SR_TXE) != RESET) && ((cr1its & USART_CR1_TXEIE) != RESET))
@@ -2274,6 +2282,21 @@ __weak void HAL_UART_AbortReceiveCpltCallback(UART_HandleTypeDef *huart)
 
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_UART_AbortReceiveCpltCallback can be implemented in the user file.
+   */
+}
+
+/**
+  * @brief  UART Idle Frame Detect Complete callback.
+  * @param  huart UART handle.
+  * @retval None
+  */
+__weak void HAL_UART_IdleFrameDetectCpltCallback(UART_HandleTypeDef *huart)
+{
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(huart);
+
+  /* NOTE : This function should not be modified, when the callback is needed,
+            the HAL_UART_IdleFrameDetectCpltCallback can be implemented in the user file.
    */
 }
 

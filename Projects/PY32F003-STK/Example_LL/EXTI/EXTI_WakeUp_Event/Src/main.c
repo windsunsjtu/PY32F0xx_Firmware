@@ -133,6 +133,10 @@ static void APP_ExtiConfig(void)
   EXTI_InitStruct.Mode = LL_EXTI_MODE_EVENT;
   EXTI_InitStruct.Trigger = LL_EXTI_TRIGGER_FALLING;
   LL_EXTI_Init(&EXTI_InitStruct);
+  
+  /* 当使用EXTI通道为0~8时需要配置触发端口 */
+  LL_EXTI_SetEXTISource(LL_EXTI_CONFIG_PORTA,LL_EXTI_CONFIG_LINE6);
+
 }
 
 /**

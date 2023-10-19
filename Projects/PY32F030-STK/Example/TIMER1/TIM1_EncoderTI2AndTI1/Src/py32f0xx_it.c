@@ -28,21 +28,15 @@
 extern TIM_HandleTypeDef    TimHandle;
 
 /* Private typedef -----------------------------------------------------------*/
-
 /* Private define ------------------------------------------------------------*/
-
 /* Private macro -------------------------------------------------------------*/
-
 /* Private variables ---------------------------------------------------------*/
-
 /* Private function prototypes -----------------------------------------------*/
-
 /* Private user code ---------------------------------------------------------*/
-
 /* External variables --------------------------------------------------------*/
 
 /******************************************************************************/
-/*          Cortex-M0+ Processor Interruption and Exception Handlers          */
+/*           Cortex-M0+ Processor Interruption and Exception Handlers         */
 /******************************************************************************/
 /**
   * @brief This function handles Non maskable interrupt.
@@ -81,29 +75,21 @@ void PendSV_Handler(void)
 void SysTick_Handler(void)
 {
   HAL_IncTick();
-  if(TimHandle.State == HAL_TIM_STATE_READY)
-  {
-    HAL_TIM_GenerateEvent(&TimHandle, TIM_EVENTSOURCE_COM);
-  }
 }
 
 /******************************************************************************/
 /* PY32F0xx Peripheral Interrupt Handlers                                     */
 /* Add here the Interrupt Handlers for the used peripherals.                  */
 /* For the available peripheral interrupt handler names,                      */
-/* please refer to the startup file (startup_py32f002xx.s).                   */
+/* please refer to the startup file.                                          */
 /******************************************************************************/
+
 /**
-  * @brief  This function handles PPP interrupt request.
-  * @param  None
-  * @retval None
+  * @brief This function handles TIM1 Interrupt .
   */
 void TIM1_BRK_UP_TRG_COM_IRQHandler(void)
 {
   HAL_TIM_IRQHandler(&TimHandle);
 }
-/*void PPP_IRQHandler(void)
-{
-}*/
 
-/************************ (C) COPYRIGHT Puya *****END OF FILE****/
+/************************ (C) COPYRIGHT Puya *****END OF FILE******************/

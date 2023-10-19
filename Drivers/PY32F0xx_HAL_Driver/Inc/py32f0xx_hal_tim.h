@@ -605,6 +605,7 @@ typedef  void (*pTIM_CallbackTypeDef)(TIM_HandleTypeDef *htim);  /*!< pointer to
   */
 #define  TIM_ENCODERINPUTPOLARITY_RISING   TIM_INPUTCHANNELPOLARITY_RISING      /*!< Encoder input with rising edge polarity  */
 #define  TIM_ENCODERINPUTPOLARITY_FALLING  TIM_INPUTCHANNELPOLARITY_FALLING     /*!< Encoder input with falling edge polarity */
+#define  TIM_ENCODERINPUTPOLARITY_BOTHEDGE TIM_INPUTCHANNELPOLARITY_BOTHEDGE    /*!< Encoder input with rising and falling edge polarity */
 /**
   * @}
   */
@@ -1576,7 +1577,8 @@ mode.
                                             ((__STATE__) == TIM_OCNIDLESTATE_RESET))
 
 #define IS_TIM_ENCODERINPUT_POLARITY(__POLARITY__)   (((__POLARITY__) == TIM_ENCODERINPUTPOLARITY_RISING)   || \
-                                                      ((__POLARITY__) == TIM_ENCODERINPUTPOLARITY_FALLING))
+                                                      ((__POLARITY__) == TIM_ENCODERINPUTPOLARITY_FALLING)  || \
+                                                       (__POLARITY__) == TIM_ENCODERINPUTPOLARITY_BOTHEDGE))
 
 #define IS_TIM_IC_POLARITY(__POLARITY__)   (((__POLARITY__) == TIM_ICPOLARITY_RISING)   || \
                                             ((__POLARITY__) == TIM_ICPOLARITY_FALLING)  || \

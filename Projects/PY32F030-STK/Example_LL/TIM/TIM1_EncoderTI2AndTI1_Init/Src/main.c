@@ -19,10 +19,10 @@
   *
   ******************************************************************************
   */
-
+  
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "py32f003xx_ll_Start_Kit.h"
+#include "py32f030xx_ll_Start_Kit.h"
 
 /* Private define ------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
@@ -30,30 +30,81 @@
 /* Private macro -------------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 static void APP_SystemClockConfig(void);
-static void APP_ConfigureExti(void);
+static void APP_ConfigTIM1Encoder(void);
 
 /**
   * @brief  应用程序入口函数.
-  * @param  无
   * @retval int
   */
 int main(void)
 {
+  /* 使能TIM1、GPIOA时钟 */
+  LL_APB1_GRP2_EnableClock(RCC_APBENR2_TIM1EN);
+  LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOA);
+
   /* 配置系统时钟 */
   APP_SystemClockConfig();
   
-  /* 使能GPIOA */
-  LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOA);
-
-  /* 初始化LED */
-  BSP_LED_Init(LED_GREEN);
-
-  /* 中断配置 */
-  APP_ConfigureExti();
-
+  /* 初始化LED、USART */
+  BSP_LED_Init(LED3);
+  BSP_USART_Config();
+  
+  /* 配置并开启TIM1编码器模式 */
+  APP_ConfigTIM1Encoder();
+  
   while (1)
   {
   }
+}
+
+/**
+  * @brief  配置TIM编码器模式
+  * @param  无
+  * @retval 无
+  */
+static void APP_ConfigTIM1Encoder(void)
+{
+  LL_TIM_InitTypeDef TIM1CountInit = {0};
+  LL_TIM_ENCODER_InitTypeDef TIM1EncoderInit = {0};
+  LL_GPIO_InitTypeDef TIM1ChannelInit = {0};
+
+  TIM1CountInit.Prescaler           = 1-1;    /* 不分频 */
+  TIM1CountInit.Autoreload          = 1000-1; /* 自动重装载值：1000 */
+  TIM1CountInit.RepetitionCounter   = 0;      /* 重复计数值：0 */
+  
+  /* 初始化TIM1 */
+  LL_TIM_Init(TIM1,&TIM1CountInit);
+  
+  /* 开启CH1和CH2捕获中断 */
+  LL_TIM_EnableIT_CC1(TIM1);
+  LL_TIM_EnableIT_CC2(TIM1);
+  NVIC_EnableIRQ(TIM1_CC_IRQn);
+  
+  /* 配置Encoder */
+  LL_TIM_SetEncoderMode(TIM1,LL_TIM_ENCODERMODE_X4_TI12);
+
+  TIM1EncoderInit.EncoderMode     = LL_TIM_ENCODERMODE_X4_TI12;   /* 编码器模式：模式3  */
+  TIM1EncoderInit.IC1Polarity     = LL_TIM_IC_POLARITY_BOTHEDGE;  /* 输入捕获1有效边沿：双边沿 */
+  TIM1EncoderInit.IC1ActiveInput  = LL_TIM_ACTIVEINPUT_DIRECTTI;  /* 输入捕获1有效输入：TI1 */
+  TIM1EncoderInit.IC1Filter       = LL_TIM_IC_FILTER_FDIV1;       /* 输入捕获1滤波值：无滤波 */
+  TIM1EncoderInit.IC1Prescaler    = LL_TIM_ICPSC_DIV1;            /* 输入捕获1预分频值：1 */
+  TIM1EncoderInit.IC2Polarity     = LL_TIM_IC_POLARITY_BOTHEDGE;  /* 输入捕获2有效边沿：双边沿 */
+  TIM1EncoderInit.IC2ActiveInput  = LL_TIM_ACTIVEINPUT_DIRECTTI;  /* 输入捕获2有效输入：TI2 */
+  TIM1EncoderInit.IC2Filter       = LL_TIM_IC_FILTER_FDIV1;       /* 输入捕获2滤波值：无滤波 */
+  TIM1EncoderInit.IC2Prescaler    = LL_TIM_ICPSC_DIV1;            /* 输入捕获2预分频值：1 */
+  
+  /* 初始化Encoder配置 */
+  LL_TIM_ENCODER_Init(TIM1,&TIM1EncoderInit);
+  
+  /* TI1和TI2映射到PA8和PA9 */
+  TIM1ChannelInit.Pin       = LL_GPIO_PIN_8 | LL_GPIO_PIN_9;
+  TIM1ChannelInit.Mode      = LL_GPIO_MODE_ALTERNATE;
+  TIM1ChannelInit.Alternate = LL_GPIO_AF_2;
+  LL_GPIO_Init(GPIOA,&TIM1ChannelInit);
+  
+  /* 使能TIM1计数器 */
+  LL_TIM_EnableCounter(TIM1);
+  
 }
 
 /**
@@ -69,7 +120,7 @@ static void APP_SystemClockConfig(void)
   {
   }
 
-  /* 设置 AHB 分频*/
+  /* 设置 AHB 分频 */
   LL_RCC_SetAHBPrescaler(LL_RCC_SYSCLK_DIV_1);
 
   /* 配置HSISYS作为系统时钟源 */
@@ -78,42 +129,22 @@ static void APP_SystemClockConfig(void)
   {
   }
 
-  /* 设置 APB1 分频*/
+  /* 设置 APB1 分频 */
   LL_RCC_SetAPB1Prescaler(LL_RCC_APB1_DIV_1);
   LL_Init1msTick(8000000);
-
+  
   /* 更新系统时钟全局变量SystemCoreClock(也可以通过调用SystemCoreClockUpdate函数更新) */
   LL_SetSystemCoreClock(8000000);
 }
 
 /**
-  * @brief  EXTI配置函数
+  * @brief  捕获回调函数
   * @param  无
   * @retval 无
   */
-static void APP_ConfigureExti(void)
+void APP_CCCallback(void)
 {
-  /* 配置PA12输入模式 */
-  LL_GPIO_InitTypeDef GPIO_InitStruct;
-  GPIO_InitStruct.Pin = LL_GPIO_PIN_12;
-  GPIO_InitStruct.Mode = LL_GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = LL_GPIO_PULL_UP;
-  LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-  /* 配置EXTI为中断、下降沿触发 */
-  LL_EXTI_InitTypeDef EXTI_InitStruct;
-  EXTI_InitStruct.Line = LL_EXTI_LINE_12;
-  EXTI_InitStruct.LineCommand = ENABLE;
-  EXTI_InitStruct.Mode = LL_EXTI_MODE_IT;
-  EXTI_InitStruct.Trigger = LL_EXTI_TRIGGER_FALLING;
-  LL_EXTI_Init(&EXTI_InitStruct);
-
-  /* 当使用EXTI通道为0~8时需要配置触发端口 */
-  /* LL_EXTI_SetEXTISource(LL_EXTI_CONFIG_PORTA,LL_EXTI_CONFIG_LINE8); */
-
-  /* 使能中断 */
-  NVIC_SetPriority(EXTI4_15_IRQn, 0);
-  NVIC_EnableIRQ(EXTI4_15_IRQn);
+  printf("Count:%d\r\n",LL_TIM_GetCounter(TIM1));
 }
 
 /**
@@ -123,8 +154,7 @@ static void APP_ConfigureExti(void)
   */
 void APP_ErrorHandler(void)
 {
-  /* 无限循环 */
-  while (1)
+  while(1)
   {
   }
 }

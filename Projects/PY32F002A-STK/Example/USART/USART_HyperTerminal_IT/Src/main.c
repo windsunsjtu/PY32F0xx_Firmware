@@ -49,7 +49,7 @@ int main(void)
   APP_USARTConfig(); 
 
   /*通过中断方式接收数据*/
-  if (HAL_UART_Transmit_IT(&UartHandle, (uint8_t *)aRxBuffer, 12) != HAL_OK)
+  if (HAL_UART_Transmit_IT(&UartHandle, (uint8_t *)aTxBuffer, 12) != HAL_OK)
   {
     Error_Handler();
   }

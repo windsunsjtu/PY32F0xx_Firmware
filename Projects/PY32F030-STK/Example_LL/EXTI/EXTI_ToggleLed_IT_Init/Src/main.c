@@ -109,6 +109,9 @@ static void APP_ConfigureEXTI(void)
   EXTI_InitStruct.Trigger = LL_EXTI_TRIGGER_FALLING;
   LL_EXTI_Init(&EXTI_InitStruct);
 
+  /* 当使用EXTI通道为0~8时需要配置触发端口 ，例如：*/
+  /* LL_EXTI_SetEXTISource(LL_EXTI_CONFIG_PORTA,LL_EXTI_CONFIG_LINE8); */
+  
   /* 使能中断 */
   NVIC_SetPriority(EXTI4_15_IRQn, 0);
   NVIC_EnableIRQ(EXTI4_15_IRQn);

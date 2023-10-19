@@ -76,8 +76,10 @@ void PendSV_Handler(void)
 void SysTick_Handler(void)
 {
   HAL_IncTick();
-
-  HAL_TIM_GenerateEvent(&TimHandle, TIM_EVENTSOURCE_COM);
+  if(TimHandle.State == HAL_TIM_STATE_READY)
+  {
+    HAL_TIM_GenerateEvent(&TimHandle, TIM_EVENTSOURCE_COM);
+  }
 }
 
 /******************************************************************************/
